@@ -1,0 +1,48 @@
+{% extends 'base.html' %} {% load humanize %}{% block title %}Dashboard{% endblock %} {% block content %}
+<h2>Welcome {{ request.user.username }}</h2>
+
+<div class="row mt-4">
+    <div class="col-md-4">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Total Deposit</h5>
+                <p class="card-text">Tk {{ total_deposit }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Total Meals</h5>
+                <p class="card-text">{{ total_meals }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h4 class="mt-4">Last Month Summary ({{ first_day_last_month }} to {{ last_day_last_month }})</h4>
+<table class="table table-bordered">
+    <tr>
+        <th>Total Meals</th>
+        <td>{{ last_month_meals }}</td>
+    </tr>
+    <tr>
+        <th>Meal Rate</th>
+        <td>{{ meal_rate }}</td>
+    </tr>
+    <tr>
+        <th>Total Deposit</th>
+        <td>Tk {{ last_month_deposit }}</td>
+    </tr>
+    <tr>
+        <th>Due/Refund</th>
+        <td>Tk {{ last_month_due }}</td>
+    </tr>
+</table>
+<h3>Average Extra Charges (Last Month)</h3>
+<ul>
+    <li>Current: {{ avg_extra_charges_per_member.current|default:0|floatformat:2|intcomma }}</li>
+    <li>Mowla: {{ avg_extra_charges_per_member.mowla|default:0|floatformat:2|intcomma }}</li>
+    <li>Others: {{ avg_extra_charges_per_member.others|default:0|floatformat:2|intcomma }}</li>
+</ul>
+{% endblock %}

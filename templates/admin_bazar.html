@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Bazar Management{% endblock %}
+
+{% block content %}
+<h2>Admin Bazar Management</h2>
+
+<!-- Filter Form -->
+<form method="get" class="form-inline mb-3">
+    <label>Year:</label>
+    <input type="number" name="year" value="{{ year }}" class="form-control mx-2" min="2020" max="2100">
+
+    <label>Month:</label>
+    <select name="month" class="form-control mx-2">
+        {% for num, name in months.items %}
+            <option value="{{ num }}" {% if num == month %}selected{% endif %}>{{ name }}</option>
+        {% endfor %}
+    </select>
+
+    <button class="btn btn-primary my-2">Filter</button>
+</form>
+
+<!-- Bazar Table -->
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>User</th>
+            <th>Amount (Tk)</th>
+            <th>Details</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for bazar in bazar_list %}
+        <tr>
+            <td>{{ bazar.date }}</td>
+            <td>
+                {% if bazar.user %}
+                    {{ bazar.user.username }}
+                {% else %}
+                    N/A
+                {% endif %}
+            </td>
+            <td>{{ bazar.amount }}</td>
+            <td>{{ bazar.details }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <th colspan="2">Total</th>
+            <th>{{ total_amount }}</th>
+            <th></th>
+        </tr>
+    </tfoot>
+</table>
+
+<!-- Optional: Add new bazar entry -->
+<a href="{% url 'add_bazar' %}" class="btn btn-success mt-3">Add New Bazar Entry</a>
+
+{% endblock %}

@@ -1,0 +1,5 @@
+{% extends "admin/change_list.html" %} {% block result_list %} {{ block.super }} {% if totals %}
+<div style="margin-top:10px; font-weight:bold;">
+    Totals: Current = {{ totals.total_current }}, Mowla = {{ totals.total_mowla }}, Others = {{ totals.total_others }}, Grand Total = {{ totals.grand_total }}
+</div>
+{% endif %} {% endblock %}

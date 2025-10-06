@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load extras %}
+
+{% block title %}Meal Report{% endblock %}
+
+{% block content %}
+<h2 class="text-center">Meal Report for {{ months|get_item:month }} {{ year }} - {{ user.username }}</h2>
+
+<form method="get" class="form-inline mb-3">
+    <label>Year:</label>
+    <input type="number" name="year" value="{{ year }}" class="form-control mx-2" min="2020" max="2100">
+    <label>Month:</label>
+    <select name="month" class="form-control mx-2">
+        {% for num, name in months.items %}
+            <option value="{{ num }}" {% if num == month %}selected{% endif %}>{{ name }}</option>
+        {% endfor %}
+    </select>
+    <button class="btn btn-primary my-2 w-100">Filter</button>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Date</th>
+                <th>Noon</th>
+                <th>Night</th>
+                <th>Guest Noon</th>
+                <th>Guest Night</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for day_data in report_data %}
+            <tr>
+                <td>{{ day_data.day }}/{{ month }}/{{ year }}</td>
+                <td>{{ day_data.noon }}</td>
+                <td>{{ day_data.night }}</td>
+                <td>{{ day_data.guest_noon }}</td>
+                <td>{{ day_data.guest_night }}</td>
+                <td>{{ day_data.total }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot class="table-secondary fw-bold">
+            <tr>
+                <td>Total</td>
+                <td>{{ report_data|sum_attribute:'noon' }}</td>
+                <td>{{ report_data|sum_attribute:'night' }}</td>
+                <td>{{ report_data|sum_attribute:'guest_noon' }}</td>
+                <td>{{ report_data|sum_attribute:'guest_night' }}</td>
+                <td>{{ report_data|sum_attribute:'total' }}</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+{% endblock %}

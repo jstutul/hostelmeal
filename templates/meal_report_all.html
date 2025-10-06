@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load extras %}
+
+{% block title %}Meal Report{% endblock %}
+
+{% block content %}
+<h2>Meal Report for {{ months|get_item:month }} {{ year }}</h2>
+
+<form method="get" class="form-inline mb-3">
+    <label>Year:</label>
+    <input type="number" name="year" value="{{ year }}" class="form-control mx-2" min="2020" max="2100">
+    <label>Month:</label>
+    <select name="month" class="form-control mx-2">
+        {% for num, name in months.items %}
+            <option value="{{ num }}" {% if num == month %}selected{% endif %}>{{ name }}</option>
+        {% endfor %}
+    </select>
+    <button class="btn btn-primary my-2">Filter</button>
+</form>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Date</th>
+            {% for user in users %}
+                <th colspan="5">{{ user.username }}</th>
+            {% endfor %}
+        </tr>
+        <tr>
+            <th></th>
+            {% for user in users %}
+                <th>Noon</th>
+                <th>Night</th>
+                <th>Guest Noon</th>
+                <th>Guest Night</th>
+                <th>Total</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for day_data in report_data %}
+        <tr>
+            <td>{{ day_data.day }}/{{ month }}/{{ year }}</td>
+            {% for u in day_data.users %}
+                <td>{{ u.noon }}</td>
+                <td>{{ u.night }}</td>
+                <td>{{ u.guest_noon }}</td>
+                <td>{{ u.guest_night }}</td>
+                <td>{{ u.total }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

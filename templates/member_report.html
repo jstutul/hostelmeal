@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load extras %}
+{% block title %}My Meal Report{% endblock %}
+
+{% block content %}
+<h2>My Meal Report for {{ months|get_item:month }} {{ year }}</h2>
+
+<form method="get" class="form-inline mb-3">
+    <label>Year:</label>
+    <input type="number" name="year" value="{{ year }}" class="form-control mx-2" min="2020" max="2100">
+    
+    <label>Month:</label>
+    <select name="month" class="form-control mx-2">
+        {% for num, name in months.items %}
+            <option value="{{ num }}" {% if num == month %}selected{% endif %}>{{ name }}</option>
+        {% endfor %}
+    </select>
+    <button class="btn btn-primary">Filter</button>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Member</th>
+                <th>Total Deposit</th>
+                <th>Total Meal</th>
+                <th>Meal Rate</th>
+                <th>Total Expense</th>
+                <th>Due / Refund</th>
+                <th>Extras</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ user.username }}</td>
+                <td>{{ total_deposit }}</td>
+                <td>{{ total_meal }}</td>
+                <td>{{ meal_rate }}</td>
+                <td>{{ total_expense }}</td>
+                <td>{{ due_or_refund }}</td>
+                <td>
+                    {% for e in extras %}
+                        {{ e.get_charge_type_display }}: {{ e.amount }}<br>
+                    {% empty %}
+                        -
+                    {% endfor %}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}
