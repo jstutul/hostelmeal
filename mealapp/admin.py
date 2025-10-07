@@ -132,8 +132,68 @@ class BazarAdmin(admin.ModelAdmin):
 
         return response
 
-admin.site.register(Deposit)
 
+
+
+class YearListFilterDeposit(admin.SimpleListFilter):
+    title = 'Year'
+    parameter_name = 'year'
+
+    def lookups(self, request, model_admin):
+        years = Deposit.objects.dates('date', 'year')
+        return [(y.year, y.year) for y in years]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(date__year=self.value())
+        return queryset
+
+
+class MonthListFilterDeposit(admin.SimpleListFilter):
+    title = 'Month'
+    parameter_name = 'month'
+
+    def lookups(self, request, model_admin):
+        months = Deposit.objects.dates('date', 'month')
+        return [(m.month, m.strftime('%B')) for m in months]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(date__month=self.value())
+        return queryset
+
+
+@admin.register(Deposit)
+class DepositAdmin(admin.ModelAdmin):
+    list_display = ('user', 'date', 'amount')
+    list_filter = (
+        'user',
+        ('date', admin.DateFieldListFilter),
+        YearListFilterDeposit,
+        MonthListFilterDeposit,
+    )
+    ordering = ('-date', 'user')
+    search_fields = ('user__username','date')
+
+    # ✅ Custom template for this model only
+    change_list_template = "admin/mealapp/deposit/change_list_deposit.html"
+
+    def changelist_view(self, request, extra_context=None):
+        response = super().changelist_view(
+            request,
+            extra_context=extra_context,
+        )
+        try:
+            qs = response.context_data['cl'].queryset
+
+            totals = qs.aggregate(total_amount=Sum('amount'))
+            totals['total_amount'] = totals['total_amount'] or 0
+
+            response.context_data['totals'] = totals
+        except (AttributeError, KeyError):
+            pass
+
+        return response
 class YearListFilter(admin.SimpleListFilter):
     title = 'Year'
     parameter_name = 'year'

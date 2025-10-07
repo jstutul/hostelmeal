@@ -373,7 +373,6 @@ def member_report_all(request):
     return render(request, 'member_report_all.html', context)
 
 
-
 @login_required
 def member_report(request):
     user = request.user
@@ -384,28 +383,36 @@ def member_report(request):
     months = {i: calendar.month_name[i] for i in range(1, 13)}
 
     # Total Bazar for the month
-    total_bazar = Bazar.objects.filter(date__year=year, date__month=month).aggregate(total=Sum('amount'))['total'] or 0
+    total_bazar = Bazar.objects.filter(date__year=year, date__month=month).aggregate(total=Sum('amount'))['total'] or Decimal(0)
 
     # Total deposit
-    deposit = Deposit.objects.filter(user=user, date__year=year, date__month=month).aggregate(total=Sum('amount'))['total'] or 0
+    deposit = Deposit.objects.filter(user=user, date__year=year, date__month=month).aggregate(total=Sum('amount'))['total'] or Decimal(0)
 
-    # Total meals
+    # Total meals (for this user)
     meals = MealSchedule.objects.filter(user=user, date__year=year, date__month=month)
     total_meal_count = sum([
         (1 if m.noon else 0) + (1 if m.night else 0) + m.guest_noon + m.guest_night
         for m in meals
     ])
 
-    # Meal rate
+    # Global meal rate
     total_meals_all_users = sum([
         (1 if m.noon else 0) + (1 if m.night else 0) + m.guest_noon + m.guest_night
         for m in MealSchedule.objects.filter(date__year=year, date__month=month)
     ])
-    meal_rate = total_bazar / total_meals_all_users if total_bazar > 0 else 0
+    meal_rate = total_bazar / total_meals_all_users if total_meals_all_users > 0 else Decimal(0)
 
     # Extra charges
-    extras = ExtraChargeNew.objects.filter(user=user, year=year, month=month)
+    extras = ExtraChargeNew.objects.filter(user=user, date__year=year, date__month=month)
     total_extra = sum([e.amount for e in extras])
+
+    # Extra charge summary (group by type)
+    extra_summary = (
+        ExtraChargeNew.objects
+        .filter(user=user, date__year=year, date__month=month)
+        .values('charge_type')
+        .annotate(total=Sum('amount'))
+    )
 
     # Total expense
     total_expense = total_meal_count * meal_rate + total_extra
@@ -423,7 +430,8 @@ def member_report(request):
         'meal_rate': round(meal_rate, 2),
         'total_expense': round(total_expense, 2),
         'due_or_refund': round(due_or_refund, 2),
-        'extras': extras
+        'extras': extras,
+        'extra_summary': extra_summary,
     }
 
     return render(request, 'member_report.html', context)
