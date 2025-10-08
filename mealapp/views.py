@@ -344,7 +344,7 @@ def member_report_all(request):
         meal_rate = total_bazar / sum([m.noon + m.night + m.guest_noon + m.guest_night for m in MealSchedule.objects.filter(date__year=year, date__month=month)]) if total_bazar > 0 else 0
 
         # Extra charges
-        extras = ExtraChargeNew.objects.filter(user=user, year=year, month=month)
+        extras = ExtraChargeNew.objects.filter(user=user, date__year=year, date__month=month)
         total_extra = sum([e.amount for e in extras])
 
         # Total expense
